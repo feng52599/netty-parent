@@ -231,7 +231,7 @@ public class DelimiterBasedFrameDecoder extends ByteToMessageDecoder {
         if (lineBasedDecoder != null) {
             return lineBasedDecoder.decode(ctx, buffer);
         }
-        // Try all delimiters and choose the delimiter which yields the shortest frame.
+        // Try all delimiters and choose the delimiter which yields the shortest frame. 找到最小分隔符 及从起始点到最小分隔符的长度
         int minFrameLength = Integer.MAX_VALUE;
         ByteBuf minDelim = null;
         for (ByteBuf delim: delimiters) {
@@ -241,11 +241,11 @@ public class DelimiterBasedFrameDecoder extends ByteToMessageDecoder {
                 minDelim = delim;
             }
         }
-
+        // 找到分隔符
         if (minDelim != null) {
             int minDelimLength = minDelim.capacity();
             ByteBuf frame;
-
+            // 是否处于丢弃模式
             if (discardingTooLongFrame) {
                 // We've just finished discarding a very large frame.
                 // Go back to the initial state.
@@ -259,14 +259,14 @@ public class DelimiterBasedFrameDecoder extends ByteToMessageDecoder {
                 }
                 return null;
             }
-
+            // 大于最大数据包长度
             if (minFrameLength > maxFrameLength) {
                 // Discard read frame.
                 buffer.skipBytes(minFrameLength + minDelimLength);
                 fail(minFrameLength);
                 return null;
             }
-
+            // 包含分隔符
             if (stripDelimiter) {
                 frame = buffer.readRetainedSlice(minFrameLength);
                 buffer.skipBytes(minDelimLength);
@@ -275,8 +275,8 @@ public class DelimiterBasedFrameDecoder extends ByteToMessageDecoder {
             }
 
             return frame;
-        } else {
-            if (!discardingTooLongFrame) {
+        } else {// 未找到分隔符
+            if (!discardingTooLongFrame) {// 非丢弃模式
                 if (buffer.readableBytes() > maxFrameLength) {
                     // Discard the content of the buffer until a delimiter is found.
                     tooLongFrameLength = buffer.readableBytes();

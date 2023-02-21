@@ -60,7 +60,7 @@ public final class ChannelOutboundBuffer {
 
     private final Channel channel;
 
-    // Entry(flushedEntry) --> ... Entry(unflushedEntry) --> ... Entry(tailEntry)
+    // Entry(flushedEntry) --> ... Entry(unflushedEntry) --> ... Entry(tailEntry) 已flush -》 未flushed
     //
     // The Entry that is the first in the linked-list structure that was flushed
     private Entry flushedEntry;
@@ -133,7 +133,7 @@ public final class ChannelOutboundBuffer {
 
     /**
      * Add a flush to this {@link ChannelOutboundBuffer}. This means all previous added messages are marked as flushed
-     * and so you will be able to handle them.
+     * and so you will be able to handle them. 添加刷新标志并设置写状态
      */
     public void addFlush() {
         // There is no need to process all entries if there was already a flush before and no new messages
@@ -147,7 +147,7 @@ public final class ChannelOutboundBuffer {
                 flushedEntry = entry;
             }
             do {
-                flushed ++;
+                flushed ++;// 及次数
                 if (!entry.promise.setUncancellable()) {
                     // Was cancelled so make sure we free up memory and notify about the freed bytes
                     int pending = entry.cancel();
@@ -173,9 +173,9 @@ public final class ChannelOutboundBuffer {
         if (size == 0) {
             return;
         }
-
+        // 获取缓冲区待写字节
         long newWriteBufferSize = TOTAL_PENDING_SIZE_UPDATER.addAndGet(this, size);
-        if (newWriteBufferSize > channel.config().getWriteBufferHighWaterMark()) {
+        if (newWriteBufferSize > channel.config().getWriteBufferHighWaterMark()) { // 待写字节大于高水位线（默认64字节）
             setUnwritable(invokeLater);
         }
     }
@@ -194,7 +194,7 @@ public final class ChannelOutboundBuffer {
         }
 
         long newWriteBufferSize = TOTAL_PENDING_SIZE_UPDATER.addAndGet(this, -size);
-        if (notifyWritability && newWriteBufferSize < channel.config().getWriteBufferLowWaterMark()) {
+        if (notifyWritability && newWriteBufferSize < channel.config().getWriteBufferLowWaterMark()) {// 默认小于32字节时设置装填从不可写到可写
             setWritable(invokeLater);
         }
     }
@@ -253,7 +253,7 @@ public final class ChannelOutboundBuffer {
 
         ChannelPromise promise = e.promise;
         int size = e.pendingSize;
-
+        //removeEntry 移除
         removeEntry(e);
 
         if (!e.cancelled) {
@@ -306,14 +306,14 @@ public final class ChannelOutboundBuffer {
     }
 
     private void removeEntry(Entry e) {
-        if (-- flushed == 0) {
+        if (-- flushed == 0) {// 无数据了
             // processed everything
             flushedEntry = null;
             if (e == tailEntry) {
                 tailEntry = null;
                 unflushedEntry = null;
             }
-        } else {
+        } else {// flushed指针后移
             flushedEntry = e.next;
         }
     }
@@ -565,7 +565,7 @@ public final class ChannelOutboundBuffer {
             final int newValue = oldValue | 1;
             if (UNWRITABLE_UPDATER.compareAndSet(this, oldValue, newValue)) {
                 if (oldValue == 0 && newValue != 0) {
-                    fireChannelWritabilityChanged(invokeLater);
+                    fireChannelWritabilityChanged(invokeLater);// 设置写状态
                 }
                 break;
             }

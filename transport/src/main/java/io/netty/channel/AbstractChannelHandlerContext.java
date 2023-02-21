@@ -743,7 +743,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
             write(msg, promise);
         }
     }
-
+    // promise 被观察者
     private void invokeWrite0(Object msg, ChannelPromise promise) {
         try {
             ((ChannelOutboundHandler) handler()).write(this, msg, promise);
@@ -820,7 +820,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
         AbstractChannelHandlerContext next = findContextOutbound();
         final Object m = pipeline.touch(msg, next);
         EventExecutor executor = next.executor();
-        if (executor.inEventLoop()) {
+        if (executor.inEventLoop()) {// 判断是否是本地线程
             if (flush) {
                 next.invokeWriteAndFlush(m, promise);
             } else {
@@ -883,7 +883,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
 
     @Override
     public ChannelPromise newPromise() {
-        return new DefaultChannelPromise(channel(), executor());
+        return new DefaultChannelPromise(channel(), executor());// channel + reactor 线程
     }
 
     @Override

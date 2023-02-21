@@ -777,11 +777,11 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 close(voidPromise());
             }
         }
-
+        // write 新buffer队列 direct化byteBuffer队列 插入写队列 设置写状态
         @Override
         public final void write(Object msg, ChannelPromise promise) {
             assertEventLoop();
-
+            // outboundBuffer 缓冲写bufefer
             ChannelOutboundBuffer outboundBuffer = this.outboundBuffer;
             if (outboundBuffer == null) {
                 // If the outboundBuffer is null we know the channel was closed and so
@@ -802,7 +802,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                     size = 0;
                 }
             } catch (Throwable t) {
-                safeSetFailure(promise, t);
+                safeSetFailure(promise, t); // 像观察者通知
                 ReferenceCountUtil.release(msg);
                 return;
             }

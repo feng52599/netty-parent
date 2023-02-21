@@ -158,7 +158,7 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
 
         boolean setOpWrite = false;
         for (;;) {
-            Object msg = in.current();
+            Object msg = in.current();// 获取刚刚的bytebuffer
             if (msg == null) {
                 // Wrote all messages.
                 clearOpWrite();
@@ -166,17 +166,17 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
                 return;
             }
 
-            if (msg instanceof ByteBuf) {
+            if (msg instanceof ByteBuf) {// 进行自旋写
                 ByteBuf buf = (ByteBuf) msg;
                 int readableBytes = buf.readableBytes();
-                if (readableBytes == 0) {
+                if (readableBytes == 0) {// 无可写 remove
                     in.remove();
                     continue;
                 }
 
                 boolean done = false;
                 long flushedAmount = 0;
-                if (writeSpinCount == -1) {
+                if (writeSpinCount == -1) {// 使用自旋锁
                     writeSpinCount = config().getWriteSpinCount();
                 }
                 for (int i = writeSpinCount - 1; i >= 0; i --) {
@@ -188,7 +188,7 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
 
                     flushedAmount += localFlushedAmount;
                     if (!buf.isReadable()) {
-                        done = true;
+                        done = true;// 写完
                         break;
                     }
                 }

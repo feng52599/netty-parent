@@ -106,13 +106,13 @@ public abstract class MessageToByteEncoder<I> extends ChannelOutboundHandlerAdap
                 try {
                     encode(ctx, cast, buf);
                 } finally {
-                    ReferenceCountUtil.release(cast);
+                    ReferenceCountUtil.release(cast);// 释放引用对象
                 }
 
-                if (buf.isReadable()) {
+                if (buf.isReadable()) {// 写完成-> 传播到head节点
                     ctx.write(buf, promise);
                 } else {
-                    buf.release();
+                    buf.release();// 释放内存，向前传递空
                     ctx.write(Unpooled.EMPTY_BUFFER, promise);
                 }
                 buf = null;
@@ -125,7 +125,7 @@ public abstract class MessageToByteEncoder<I> extends ChannelOutboundHandlerAdap
             throw new EncoderException(e);
         } finally {
             if (buf != null) {
-                buf.release();
+                buf.release();// 释放内存
             }
         }
     }

@@ -128,7 +128,7 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
             return buffer;
         }
     };
-
+    // 累加器
     ByteBuf cumulation;
     private Cumulator cumulator = MERGE_CUMULATOR;
     private boolean singleDecode;
@@ -419,9 +419,9 @@ public abstract class ByteToMessageDecoder extends ChannelInboundHandlerAdapter 
                 }
 
                 if (outSize == out.size()) {
-                    if (oldInputLength == in.readableBytes()) {
+                    if (oldInputLength == in.readableBytes()) {//数据包不够
                         break;
-                    } else {
+                    } else {//读取数据不够解析出对象
                         continue;
                     }
                 }

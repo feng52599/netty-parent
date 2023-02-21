@@ -335,6 +335,7 @@ public abstract class AbstractByteBuf extends ByteBuf {
     @Override
     public byte getByte(int index) {
         checkIndex(index);
+
         return _getByte(index);
     }
 

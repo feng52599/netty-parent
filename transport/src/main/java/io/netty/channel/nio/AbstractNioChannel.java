@@ -444,7 +444,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
             return Unpooled.EMPTY_BUFFER;
         }
 
-        final ByteBufAllocator alloc = alloc();
+        final ByteBufAllocator alloc = alloc();// 创建-> copy 堆内内存-》堆外内存
         if (alloc.isDirectBufferPooled()) {
             ByteBuf directBuf = alloc.directBuffer(readableBytes);
             directBuf.writeBytes(buf, buf.readerIndex(), readableBytes);

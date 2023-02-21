@@ -203,7 +203,7 @@ public abstract class AbstractOioByteChannel extends AbstractOioChannel {
                     readableBytes = newReadableBytes;
                 }
                 in.remove();
-            } else if (msg instanceof FileRegion) {
+            } else if (msg instanceof FileRegion) {// 磁盘-》socket
                 FileRegion region = (FileRegion) msg;
                 long transferred = region.transferred();
                 doWriteFileRegion(region);

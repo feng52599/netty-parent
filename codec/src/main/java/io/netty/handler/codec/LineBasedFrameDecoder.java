@@ -33,7 +33,7 @@ public class LineBasedFrameDecoder extends ByteToMessageDecoder {
     private final int maxLength;
     /** Whether or not to throw an exception as soon as we exceed maxLength. */
     private final boolean failFast;
-    private final boolean stripDelimiter;
+    private final boolean stripDelimiter;//数据包是否带换行符
 
     /** True if we're discarding input because we're already over maxLength.  */
     private boolean discarding;
@@ -88,18 +88,18 @@ public class LineBasedFrameDecoder extends ByteToMessageDecoder {
      */
     protected Object decode(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
         final int eol = findEndOfLine(buffer);
-        if (!discarding) {
+        if (!discarding) {// 非丢弃模式
             if (eol >= 0) {
                 final ByteBuf frame;
                 final int length = eol - buffer.readerIndex();
                 final int delimLength = buffer.getByte(eol) == '\r'? 2 : 1;
-
+                // 超过则丢弃，可读字节移动到当前字节
                 if (length > maxLength) {
                     buffer.readerIndex(eol + delimLength);
                     fail(ctx, length);
                     return null;
                 }
-
+                // 是否跳过分隔符
                 if (stripDelimiter) {
                     frame = buffer.readRetainedSlice(length);
                     buffer.skipBytes(delimLength);
@@ -108,7 +108,7 @@ public class LineBasedFrameDecoder extends ByteToMessageDecoder {
                 }
 
                 return frame;
-            } else {
+            } else {// 无换行符模式
                 final int length = buffer.readableBytes();
                 if (length > maxLength) {
                     discardedBytes = length;
@@ -120,7 +120,7 @@ public class LineBasedFrameDecoder extends ByteToMessageDecoder {
                 }
                 return null;
             }
-        } else {
+        } else {// 丢弃模式
             if (eol >= 0) {
                 final int length = discardedBytes + eol - buffer.readerIndex();
                 final int delimLength = buffer.getByte(eol) == '\r'? 2 : 1;

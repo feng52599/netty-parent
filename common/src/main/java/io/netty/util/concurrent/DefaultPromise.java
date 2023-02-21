@@ -424,7 +424,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
             if (stackDepth < MAX_LISTENER_STACK_DEPTH) {
                 threadLocals.setFutureListenerStackDepth(stackDepth + 1);
                 try {
-                    notifyListenersNow();
+                    notifyListenersNow();// 通知
                 } finally {
                     threadLocals.setFutureListenerStackDepth(stackDepth);
                 }
@@ -485,7 +485,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
             if (listeners instanceof DefaultFutureListeners) {
                 notifyListeners0((DefaultFutureListeners) listeners);
             } else {
-                notifyListener0(this, (GenericFutureListener<? extends Future<V>>) listeners);
+                notifyListener0(this, (GenericFutureListener<? extends Future<V>>) listeners);// 通知
             }
             synchronized (this) {
                 if (this.listeners == null) {
@@ -516,7 +516,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
             logger.warn("An exception was thrown by " + l.getClass().getName() + ".operationComplete()", t);
         }
     }
-
+    // 添加观察者1 - 3 - 2
     private void addListener0(GenericFutureListener<? extends Future<? super V>> listener) {
         if (listeners == null) {
             listeners = listener;
@@ -536,7 +536,7 @@ public class DefaultPromise<V> extends AbstractFuture<V> implements Promise<V> {
     }
 
     private boolean setSuccess0(V result) {
-        return setValue0(result == null ? SUCCESS : result);
+        return setValue0(result == null ? SUCCESS : result); // null 为成功默认时null
     }
 
     private boolean setFailure0(Throwable cause) {

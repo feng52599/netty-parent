@@ -35,7 +35,7 @@ final class PooledDirectByteBuf extends PooledByteBuf<ByteBuffer> {
             return new PooledDirectByteBuf(handle, 0);
         }
     };
-
+    // 这里就使用了recycle 不需要多次分配内存，减少new 减小younggc 频率
     static PooledDirectByteBuf newInstance(int maxCapacity) {
         PooledDirectByteBuf buf = RECYCLER.get();
         buf.reuse(maxCapacity);
@@ -222,7 +222,7 @@ final class PooledDirectByteBuf extends PooledByteBuf<ByteBuffer> {
             return 0;
         }
 
-        ByteBuffer tmpBuf;
+        ByteBuffer tmpBuf;// 将自定义的bytebuffer写入到jdk底层的channel
         if (internal) {
             tmpBuf = internalNioBuffer();
         } else {
