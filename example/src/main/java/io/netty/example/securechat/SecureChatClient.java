@@ -30,7 +30,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 /**
- * Simple SSL chat client modified from {@link TelnetClient}.
+ * Simple SSL chat client modified from {@link TelnetClient}. test chat
  */
 public final class SecureChatClient {
 
