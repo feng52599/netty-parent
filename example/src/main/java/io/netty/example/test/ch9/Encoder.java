@@ -1,7 +1,8 @@
-package io.netty.example.test;
+package io.netty.example.test.ch9;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.example.test.User;
 import io.netty.handler.codec.MessageToByteEncoder;
 
 public class Encoder extends MessageToByteEncoder<User> {
