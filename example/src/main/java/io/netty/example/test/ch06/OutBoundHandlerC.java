@@ -3,7 +3,7 @@ package io.netty.example.test.ch06;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
-import io.netty.example.test.ch6.exceptionspread.BusinessException;
+import io.netty.example.test.ch06.exceptionspread.BusinessException;
 
 /**
  * @author

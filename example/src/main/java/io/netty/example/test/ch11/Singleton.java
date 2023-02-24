@@ -1,11 +1,9 @@
 package io.netty.example.test.ch11;
 
-import io.netty.handler.codec.mqtt.MqttEncoder;
 import io.netty.handler.timeout.ReadTimeoutException;
 
 /**
  * @see ReadTimeoutException
- * @see MqttEncoder
  */
 
 

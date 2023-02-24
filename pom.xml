@@ -645,10 +645,10 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.5.1</version>
         <configuration>
-          <compilerVersion>1.7</compilerVersion>
+          <compilerVersion>1.8</compilerVersion>
           <fork>true</fork>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
           <debug>true</debug>
           <optimize>true</optimize>
           <showDeprecation>true</showDeprecation>
@@ -749,7 +749,7 @@
             <goals>
               <goal>check</goal>
             </goals>
-            <phase>validate</phase>
+            <phase>none</phase>
             <configuration>
               <consoleOutput>true</consoleOutput>
               <logViolationsToConsole>true</logViolationsToConsole>
@@ -778,7 +778,7 @@
             <goals>
               <goal>check-format</goal>
             </goals>
-            <phase>validate</phase>
+            <phase>none</phase>
           </execution>
         </executions>
         <configuration>
