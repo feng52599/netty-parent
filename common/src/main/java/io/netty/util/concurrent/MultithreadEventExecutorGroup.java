@@ -71,17 +71,17 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
         if (nThreads <= 0) {
             throw new IllegalArgumentException(String.format("nThreads: %d (expected: > 0)", nThreads));
         }
-
+        // 1. 创建线程执行器
         if (executor == null) {
-            executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());
+            executor = new ThreadPerTaskExecutor(newDefaultThreadFactory());// newDefaultThreadFactory() 这里定义了线程命名等内容，及线程参数
         }
 
         children = new EventExecutor[nThreads];
-
+        // 2. 创建NIOEventLoopGroup 1个线程=>对应一个实例
         for (int i = 0; i < nThreads; i ++) {
             boolean success = false;
             try {
-                children[i] = newChild(executor, args);
+                children[i] = newChild(executor, args); // args SelectProvider (由程序指定也可变更) 默认事件选择策略，默认拒绝策略
                 success = true;
             } catch (Exception e) {
                 // TODO: Think about if this is a good exception type
@@ -89,13 +89,13 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
             } finally {
                 if (!success) {
                     for (int j = 0; j < i; j ++) {
-                        children[j].shutdownGracefully();
+                        children[j].shutdownGracefully();// 优雅关闭
                     }
 
                     for (int j = 0; j < i; j ++) {
                         EventExecutor e = children[j];
                         try {
-                            while (!e.isTerminated()) {
+                            while (!e.isTerminated()) {// 等待关闭完成
                                 e.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
                             }
                         } catch (InterruptedException interrupted) {
@@ -107,9 +107,9 @@ public abstract class MultithreadEventExecutorGroup extends AbstractEventExecuto
                 }
             }
         }
-
+        // 3.创建线程选择器
         chooser = chooserFactory.newChooser(children);
-
+        // 对第二步创建失败的Listen
         final FutureListener<Object> terminationListener = new FutureListener<Object>() {
             @Override
             public void operationComplete(Future<Object> future) throws Exception {

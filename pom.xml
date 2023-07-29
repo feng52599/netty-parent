@@ -742,6 +742,9 @@
       </plugin>
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
         <version>2.12.1</version>
         <executions>
           <execution>

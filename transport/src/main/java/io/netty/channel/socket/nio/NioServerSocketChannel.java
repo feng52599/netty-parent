@@ -53,7 +53,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
              *  Use the {@link SelectorProvider} to open {@link SocketChannel} and so remove condition in
              *  {@link SelectorProvider#provider()} which is called by each ServerSocketChannel.open() otherwise.
              *
-             *  See <a href="https://github.com/netty/netty/issues/2308">#2308</a>.
+             *  See <a href="https://github.com/netty/netty/issues/2308">#2308</a>. jdk 底层来创建服务端socketChannel
              */
             return provider.openServerSocketChannel();
         } catch (IOException e) {
@@ -72,7 +72,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     }
 
     /**
-     * Create a new instance using the given {@link SelectorProvider}.
+     * Create a new instance using the given {@link SelectorProvider}. NioServerSocketChannel 构造函数=》先构架jdk 底层channel 再在业务上层处理
      */
     public NioServerSocketChannel(SelectorProvider provider) {
         this(newSocket(provider));
@@ -125,7 +125,7 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
     protected void doBind(SocketAddress localAddress) throws Exception {
         if (PlatformDependent.javaVersion() >= 7) {
             javaChannel().bind(localAddress, config.getBacklog());
-        } else {
+        } else {// jdk channel 绑定
             javaChannel().socket().bind(localAddress, config.getBacklog());
         }
     }

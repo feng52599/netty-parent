@@ -493,7 +493,7 @@ abstract class AbstractChannelHandlerContext extends DefaultAttributeMap
 
         final AbstractChannelHandlerContext next = findContextOutbound();
         EventExecutor executor = next.executor();
-        if (executor.inEventLoop()) {
+        if (executor.inEventLoop()) { // 判断当前线程是否是eventLoop线程
             next.invokeBind(localAddress, promise);
         } else {
             safeExecute(executor, new Runnable() {

@@ -85,7 +85,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
         this.ch = ch;
         this.readInterestOp = readInterestOp;
         try {
-            ch.configureBlocking(false);
+            ch.configureBlocking(false);// 这个ch 是jdk底层channel，设置服务端channel 为非阻塞
         } catch (IOException e) {
             try {
                 ch.close();
@@ -383,7 +383,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
     protected void doRegister() throws Exception {
         boolean selected = false;
         for (;;) {
-            try {
+            try {// javaChannel => 底层channel 调用底层register  this=> netty channel 传如到底层attr去，从底层取出就可以直接用
                 selectionKey = javaChannel().register(eventLoop().selector, 0, this);
                 return;
             } catch (CancelledKeyException e) {
@@ -405,7 +405,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
     protected void doDeregister() throws Exception {
         eventLoop().cancel(selectionKey());
     }
-
+    // 读事件处理
     @Override
     protected void doBeginRead() throws Exception {
         // Channel.read() or ChannelHandlerContext.read() was called
@@ -417,7 +417,7 @@ public abstract class AbstractNioChannel extends AbstractChannel {
         readPending = true;
 
         final int interestOps = selectionKey.interestOps();
-        if ((interestOps & readInterestOp) == 0) {
+        if ((interestOps & readInterestOp) == 0) {//readInterestOp accept 时间SelectionKey.OP_ACCEPT 此时端口绑定成功，关心Accept时间
             selectionKey.interestOps(interestOps | readInterestOp);
         }
     }

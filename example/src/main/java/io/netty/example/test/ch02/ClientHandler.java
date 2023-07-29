@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
+// 普通阻塞IO进行同行
 public class ClientHandler {
 
     public static final int MAX_DATA_LEN = 1024;

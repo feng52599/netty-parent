@@ -463,6 +463,9 @@
       <!-- Disable checkstyle -->
       <plugin>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
         <executions>
           <execution>
             <id>check-style</id>

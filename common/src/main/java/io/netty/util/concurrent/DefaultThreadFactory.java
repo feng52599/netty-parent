@@ -91,7 +91,7 @@ public class DefaultThreadFactory implements ThreadFactory {
             throw new IllegalArgumentException(
                     "priority: " + priority + " (expected: Thread.MIN_PRIORITY <= priority <= Thread.MAX_PRIORITY)");
         }
-
+        // 定义线程工厂名称等
         prefix = poolName + '-' + poolId.incrementAndGet() + '-';
         this.daemon = daemon;
         this.priority = priority;
@@ -102,10 +102,10 @@ public class DefaultThreadFactory implements ThreadFactory {
         this(poolName, daemon, priority, System.getSecurityManager() == null ?
                 Thread.currentThread().getThreadGroup() : System.getSecurityManager().getThreadGroup());
     }
-
+    // 这里实际就是Factory对应的实际使用的newThread，所有通过这个Factory创建的线程都是通过这个来创建
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = newThread(new DefaultRunnableDecorator(r), prefix + nextId.incrementAndGet());
+        Thread t = newThread(new DefaultRunnableDecorator(r), prefix + nextId.incrementAndGet());// 创建ThreadLocal 线程（netty封装）
         try {
             if (t.isDaemon()) {
                 if (!daemon) {
@@ -125,7 +125,7 @@ public class DefaultThreadFactory implements ThreadFactory {
         }
         return t;
     }
-
+    // Netty 使用的实际时FastThreadLocalThread todo lsh 可以深入了解下
     protected Thread newThread(Runnable r, String name) {
         return new FastThreadLocalThread(threadGroup, r, name);
     }

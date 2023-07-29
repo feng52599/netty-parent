@@ -175,8 +175,8 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         super(parent);
         this.addTaskWakesUp = addTaskWakesUp;
         this.maxPendingTasks = Math.max(16, maxPendingTasks);
-        this.executor = ObjectUtil.checkNotNull(executor, "executor");
-        taskQueue = newTaskQueue(this.maxPendingTasks);
+        this.executor = ObjectUtil.checkNotNull(executor, "executor");// 线程执行器保存，后面执行线程池使用
+        taskQueue = newTaskQueue(this.maxPendingTasks); //外部线程执行Netty任务，由NioEventGroup执行
         rejectedExecutionHandler = ObjectUtil.checkNotNull(rejectedHandler, "rejectedHandler");
     }
 
@@ -336,7 +336,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             reject(task);
         }
     }
-
+    // 把task往队列丢
     final boolean offerTask(Runnable task) {
         if (isShutdown()) {
             reject();
@@ -487,7 +487,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
             taskQueue.offer(WAKEUP_TASK);
         }
     }
-
+    // 判断线程是否相等
     @Override
     public boolean inEventLoop(Thread thread) {
         return thread == this.thread;
@@ -752,12 +752,12 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
         if (task == null) {
             throw new NullPointerException("task");
         }
-
+        // 判断当前执行线程是否是NioEventLoop线程
         boolean inEventLoop = inEventLoop();
         if (inEventLoop) {
             addTask(task);
         } else {
-            startThread();
+            startThread();// 这时候不是EventLoop线程，而是主线程，在这个方法里创建NioEventLoop线程并启动
             addTask(task);
             if (isShutdown() && removeTask(task)) {
                 reject();
@@ -858,11 +858,11 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
     }
 
     private void doStartThread() {
-        assert thread == null;
-        executor.execute(new Runnable() {
+        assert thread == null;//启动线程之前，必须保证thread 是null，其实也就是thread还没有启动
+        executor.execute(new Runnable() { // executor=>ThreadPerTaskExecutor => new ThreadLocalThread
             @Override
             public void run() {
-                thread = Thread.currentThread();
+                thread = Thread.currentThread();// 新线程 这时候将NioEventLoop 与其唯一线程绑定上了
                 if (interrupted) {
                     thread.interrupt();
                 }
@@ -870,7 +870,7 @@ public abstract class SingleThreadEventExecutor extends AbstractScheduledEventEx
                 boolean success = false;
                 updateLastExecutionTime();
                 try {
-                    SingleThreadEventExecutor.this.run();
+                    SingleThreadEventExecutor.this.run();// NioEventLoop.run（） 启动
                     success = true;
                 } catch (Throwable t) {
                     logger.warn("Unexpected exception from an event executor: ", t);

@@ -136,7 +136,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         this.childHandler = childHandler;
         return this;
     }
-
+    // 将客户的channel属性保存起来
     @Override
     void init(Channel channel) throws Exception {
         final Map<ChannelOption<?>, Object> options = options0();
@@ -157,7 +157,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
 
         final EventLoopGroup currentChildGroup = childGroup;
         final ChannelHandler currentChildHandler = childHandler;
-        final Entry<ChannelOption<?>, Object>[] currentChildOptions;
+        final Entry<ChannelOption<?>, Object>[] currentChildOptions;// 保存到局部变量
         final Entry<AttributeKey<?>, Object>[] currentChildAttrs;
         synchronized (childOptions) {
             currentChildOptions = childOptions.entrySet().toArray(newOptionArray(childOptions.size()));
@@ -165,7 +165,7 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
         synchronized (childAttrs) {
             currentChildAttrs = childAttrs.entrySet().toArray(newAttrArray(childAttrs.size()));
         }
-
+        // 把用户自定义的handler添加到pipeline
         p.addLast(new ChannelInitializer<Channel>() {
             @Override
             public void initChannel(Channel ch) throws Exception {
@@ -182,8 +182,8 @@ public class ServerBootstrap extends AbstractBootstrap<ServerBootstrap, ServerCh
                 ch.eventLoop().execute(new Runnable() {
                     @Override
                     public void run() {
-                        pipeline.addLast(new ServerBootstrapAcceptor(
-                                currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));
+                        pipeline.addLast(new ServerBootstrapAcceptor(// 处理新连接的 ServerBootstrapAcceptor 到 ChannelPipeline 中
+                                currentChildGroup, currentChildHandler, currentChildOptions, currentChildAttrs));// 对新增的handler添加处理逻辑， 将用户自定义的属性传进来（如childChannelHandler）
                     }
                 });
             }
